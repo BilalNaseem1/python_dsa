@@ -1,0 +1,36 @@
+#!/bin/bash
+# Run from anywhere inside the repo:
+#   cd exercises/01_introduction_01_hey_programmer && ../../test
+#   ./test                  (from repo root, runs exercise in cwd)
+#   ./test <exercise_name>  (from repo root, by folder name)
+
+set -e
+
+# ── find repo root (the directory containing this script) ──────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ── determine exercise directory ───────────────────────────────────────────
+if [ -n "$1" ]; then
+  # argument given: treat as exercise folder name
+  EXERCISE_DIR="$SCRIPT_DIR/exercises/$1"
+  if [ ! -d "$EXERCISE_DIR" ]; then
+    echo "ERROR: no exercise folder found at exercises/$1"
+    echo ""
+    echo "Available exercises:"
+    for d in "$SCRIPT_DIR/exercises"/*/; do
+      echo "  ./test $(basename "$d")"
+    done
+    exit 1
+  fi
+else
+  # no argument: use current working directory as the exercise
+  EXERCISE_DIR="$(pwd)"
+  if [ ! -f "$EXERCISE_DIR/tests.py" ]; then
+    echo "ERROR: no tests.py found in current directory."
+    echo "Run this from inside an exercise folder, or pass the exercise name:"
+    echo "  ./test <exercise_name>"
+    exit 1
+  fi
+fi
+
+python3 "$SCRIPT_DIR/runner/engine.py" "$EXERCISE_DIR"
